@@ -331,7 +331,7 @@ def unsupervised_mask_iou(
     elif matching == "best_overlap":
         non_empty_gt = torch.sum(true_mask.squeeze(0), dim=1) > 0
         pred_idxs = torch.argmax(pairwise_iou, dim=0)[non_empty_gt]
-        true_idxs = torch.arange(pairwise_iou.shape[1])[non_empty_gt]
+        true_idxs = torch.arange(pairwise_iou.shape[1], device=non_empty_gt.device)[non_empty_gt]
     else:
         raise ValueError(f"Unknown matching {matching}")
 
