@@ -6,6 +6,7 @@ import hydra
 import hydra_zen
 import pytorch_lightning as pl
 from omegaconf import SI
+import wandb
 
 import ocl.cli._config  # noqa: F401
 from ocl.combined_model import CombinedModel
@@ -65,6 +66,8 @@ class TrainingConfig:
     load_checkpoint: Optional[str] = None
     seed: Optional[int] = None
     experiment: Dict[str, Any] = dataclasses.field(default_factory=lambda: {"callbacks": {}})
+    project_name: Optional[str] = None
+    run_name: Optional[str] = None
 
 
 # --8<-- [end:TrainingConfig]
@@ -130,6 +133,17 @@ def train(config: TrainingConfig):
     # IMPORTANTLY, we need to take care not to set a custom `worker_init_fn` function on the
     # dataloaders (or take care of worker seeding ourselves).
     pl.seed_everything(config.seed, workers=True)
+    run = None
+    if config.project_name is not None:
+        run_name = config.run_name
+        if run_name is None:
+            run_name = f'run-{config.seed}'
+
+        run = wandb.init(
+            project=config.project_name,
+            name=run_name,
+            sync_tensorboard=True
+        )
 
     datamodule = build_and_register_datamodule_from_config(config)
     model = build_model_from_config(config)
@@ -148,6 +162,8 @@ def train(config: TrainingConfig):
         checkpoint_path = None
 
     trainer.fit(model, datamodule=datamodule, ckpt_path=checkpoint_path)
+    if run is not None:
+        run.finish()
 
 
 if __name__ == "__main__":
