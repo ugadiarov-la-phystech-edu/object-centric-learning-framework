@@ -21,26 +21,27 @@ models:
   conditioning:
     _target_: routed.ocl.conditioning.RandomConditioning
     n_slots: 6
-    object_dim: 128
+    object_dim: 256
 
     batch_size_path: input.batch_size
   feature_extractor:
-    model_name: vit_small_patch8_224_dino
+    model_name: vit_base_patch16_224_dino
     pretrained: ${when_testing:false,true}
     freeze: true
 
+  perceptual_grouping: {}
   object_decoder:
-    _target_: routed.ocl.decoding.PatchDecoder
-    num_patches: 784
+    _target_: routed.ocl.decoding.AutoregressivePatchDecoder
+    decoder_cond_dim: ${.output_dim}
+    use_input_transform: true
+    use_decoder_masks: true
     decoder:
-      _target_: ocl.neural_networks.build_mlp
+      _target_: ocl.neural_networks.build_transformer_decoder
       _partial_: true
-      features: [1024, 1024, 1024]
+      n_layers: 4
+      n_heads: 4
+      return_attention_weights: true
+    masks_path: perceptual_grouping.feature_attributions
     object_features_path: perceptual_grouping.objects
-
-  masks_as_image:
-    _target_: routed.ocl.utils.resizing.Resize
-    input_path: object_decoder.masks
-    size: 128
-    resize_mode: bilinear
-    patch_mode: true
+experiment:
+  input_feature_dim: 768

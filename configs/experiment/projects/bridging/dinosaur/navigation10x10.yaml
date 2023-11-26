@@ -1,7 +1,7 @@
 # @package _global_
 defaults:
   - /experiment/projects/bridging/dinosaur/_base_feature_recon
-  - /dataset: navigation5x5
+  - /dataset: navigation10x10
   - /experiment/projects/bridging/dinosaur/_preprocessing_shapes2d
   - /experiment/projects/bridging/dinosaur/_metrics_coco
   - _self_
@@ -20,7 +20,7 @@ dataset:
 models:
   conditioning:
     _target_: routed.ocl.conditioning.RandomConditioning
-    n_slots: 6
+    n_slots: 9
     object_dim: 128
 
     batch_size_path: input.batch_size
