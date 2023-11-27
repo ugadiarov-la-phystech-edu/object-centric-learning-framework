@@ -2,7 +2,7 @@
 defaults:
   - /experiment/projects/bridging/dinosaur/_base_feature_recon
   - /dataset: navigation5x5
-  - /experiment/projects/bridging/dinosaur/_preprocessing_shapes2d
+  - /experiment/projects/bridging/dinosaur/_preprocessing_navigation5x5
   - /experiment/projects/bridging/dinosaur/_metrics_coco
   - _self_
 
@@ -11,7 +11,8 @@ trainer:
   devices: 1
   max_steps: 300000
   max_epochs:
-  check_val_every_n_epoch: 3
+  check_val_every_n_epoch: null
+  val_check_interval: 7500
 
 dataset:
   num_workers: 4
