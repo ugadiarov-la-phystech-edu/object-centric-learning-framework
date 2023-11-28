@@ -1,4 +1,4 @@
-# The PASCAL VOC 2012 dataset in the trainaug variant with instance segmentation masks.
+# This dataset has the same format as the PASCAL VOC 2012 dataset
 _target_: ocl.datasets.WebdatasetDataModule
 train_shards: "${oc.env:DATASET_PREFIX}/navigation10x10/train/shard-{000000..000019}.tar"
 train_size: 100000
