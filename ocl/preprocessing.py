@@ -253,7 +253,7 @@ class VOCInstanceMasksToDenseMasks:
             if len(unique_values) == 1:
                 assert unique_values[0] == 0, f'Expected 0, bug got {unique_values[0]}'
                 image_key = data['__key__']
-                warnings.warn(f'Warning: Not all classes present in the image {image_key}')
+                warnings.warn(f'Not all classes present in the image {image_key}')
             else:
                 assert len(unique_values) == 2  # Should contain 0 and class id.
                 classes.append(unique_values[1])
