@@ -1,5 +1,6 @@
 """Data preprocessing functions."""
 import random
+import warnings
 from collections import defaultdict
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
@@ -249,8 +250,13 @@ class VOCInstanceMasksToDenseMasks:
         classes = []
         for instance_slice in numpy.rollaxis(expanded_segmentation_mask, self.instance_axis):
             unique_values = numpy.unique(instance_slice)
-            assert len(unique_values) == 2  # Should contain 0 and class id.
-            classes.append(unique_values[1])
+            if len(unique_values) == 1:
+                assert unique_values[0] == 0, f'Expected 0, bug got {unique_values[0]}'
+                image_key = data['__key__']
+                warnings.warn(f'Warning: Not all classes present in the image {image_key}')
+            else:
+                assert len(unique_values) == 2  # Should contain 0 and class id.
+                classes.append(unique_values[1])
         data[self.classes_key] = numpy.array(classes)
 
         return data
