@@ -3,7 +3,7 @@
 case $1 in
   COCO)
     echo "Downloading COCO2017 and COCO20k data to data/coco"
-    # ./download_scripts/download_coco_data.sh
+    ./download_scripts/download_coco_data.sh
 
     echo "Converting COCO2017 to webdataset stored at outputs/coco2017"
     SEED=23894734
