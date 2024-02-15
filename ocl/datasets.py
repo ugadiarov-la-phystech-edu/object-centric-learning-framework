@@ -78,6 +78,7 @@ class WebdatasetDataModule(pl.LightningDataModule):
         val_size: Optional[int] = None,
         test_size: Optional[int] = None,
         shuffle_train: bool = True,
+        shuffle_val: bool = False,
         shuffle_buffer_size: Optional[int] = None,
         use_autopadding: bool = False,
     ):
@@ -126,6 +127,7 @@ class WebdatasetDataModule(pl.LightningDataModule):
         self.eval_batch_size = eval_batch_size if eval_batch_size is not None else batch_size
         self.num_workers = num_workers
         self.shuffle_train = shuffle_train
+        self.shuffle_val = shuffle_val
         self.shuffle_buffer_size = shuffle_buffer_size
         self.train_transforms = _get_sorted_values(train_transforms) if train_transforms else []
         self.eval_transforms = _get_sorted_values(eval_transforms) if eval_transforms else []
@@ -220,7 +222,7 @@ class WebdatasetDataModule(pl.LightningDataModule):
         transforms = self.eval_transforms
         return self._create_webdataset(
             self.val_shards,
-            shuffle=False,
+            shuffle=self.shuffle_val,
             n_datapoints=self.val_size,
             keys_to_keep=_collect_fields(transforms),
             transforms=_get_single_element_transforms(transforms),
