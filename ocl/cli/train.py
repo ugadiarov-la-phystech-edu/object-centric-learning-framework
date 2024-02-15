@@ -67,6 +67,7 @@ class TrainingConfig:
     seed: Optional[int] = None
     experiment: Dict[str, Any] = dataclasses.field(default_factory=lambda: {"callbacks": {}})
     project_name: Optional[str] = None
+    group_name: Optional[str] = None
     run_name: Optional[str] = None
 
 
@@ -141,6 +142,7 @@ def train(config: TrainingConfig):
 
         run = wandb.init(
             project=config.project_name,
+            group=config.group_name,
             name=run_name,
             sync_tensorboard=True
         )
