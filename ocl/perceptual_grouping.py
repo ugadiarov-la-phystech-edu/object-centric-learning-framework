@@ -13,6 +13,7 @@ from sklearn import cluster
 from torch import nn
 
 import ocl.typing
+from ocl.neural_networks.gnn import GRUGNNCell
 
 
 class SlotAttention(nn.Module):
@@ -33,6 +34,7 @@ class SlotAttention(nn.Module):
         ff_mlp: Optional[nn.Module] = None,
         use_projection_bias: bool = False,
         use_implicit_differentiation: bool = False,
+        use_graph_gru: bool = False,
     ):
         super().__init__()
         self.dim = dim
@@ -40,6 +42,7 @@ class SlotAttention(nn.Module):
         self.iters = iters
         self.eps = eps
         self.use_implicit_differentiation = use_implicit_differentiation
+        self.use_graph_gru = use_graph_gru
 
         if kvq_dim is None:
             self.kvq_dim = dim
@@ -55,7 +58,10 @@ class SlotAttention(nn.Module):
         self.to_k = nn.Linear(feature_dim, self.kvq_dim, bias=use_projection_bias)
         self.to_v = nn.Linear(feature_dim, self.kvq_dim, bias=use_projection_bias)
 
-        self.gru = nn.GRUCell(self.kvq_dim, dim)
+        if self.use_graph_gru:
+            self.gru = GRUGNNCell(self.kvq_dim, self.dim, gnn_hidden_dim=512)
+        else:
+            self.gru = nn.GRUCell(self.kvq_dim, self.dim)
 
         self.norm_input = nn.LayerNorm(feature_dim)
         self.norm_slots = nn.LayerNorm(dim)
@@ -81,11 +87,14 @@ class SlotAttention(nn.Module):
         attn = attn / attn.sum(dim=-1, keepdim=True)
 
         updates = torch.einsum("bjhd,bihj->bihd", v, attn)
+        if self.use_graph_gru:
+            updates = updates.squeeze(2)
+        else:
+            updates = updates.reshape(-1, self.kvq_dim)
+            slots_prev = slots_prev.reshape(-1, self.dim)
 
-        slots = self.gru(updates.reshape(-1, self.kvq_dim), slots_prev.reshape(-1, self.dim))
-
+        slots = self.gru(updates, slots_prev)
         slots = slots.reshape(bs, -1, self.dim)
-
         if self.ff_mlp:
             slots = self.ff_mlp(slots)
 
@@ -131,6 +140,7 @@ class SlotAttentionGrouping(nn.Module):
         use_projection_bias: bool = False,
         use_implicit_differentiation: bool = False,
         use_empty_slot_for_masked_slots: bool = False,
+        use_graph_gru: bool = False,
     ):
         """Initialize Slot Attention Grouping.
 
@@ -152,6 +162,7 @@ class SlotAttentionGrouping(nn.Module):
                 efficient than the standard version, but can not backpropagate gradients to the
                 conditioning input.
             use_empty_slot_for_masked_slots: Replace slots masked with a learnt empty slot vector.
+            use_graph_gru: Whether to use GNN-based GRU.
         """
         super().__init__()
         self._object_dim = object_dim
@@ -165,6 +176,7 @@ class SlotAttentionGrouping(nn.Module):
             ff_mlp=ff_mlp,
             use_projection_bias=use_projection_bias,
             use_implicit_differentiation=use_implicit_differentiation,
+            use_graph_gru=use_graph_gru,
         )
 
         self.positional_embedding = positional_embedding

@@ -29,6 +29,7 @@ models:
     feature_dim: ${.object_dim}
     object_dim: ${models.conditioning.object_dim}
     use_projection_bias: false
+    use_graph_gru: false
     positional_embedding:
       _target_: ocl.neural_networks.wrappers.Sequential
       _args_:
