@@ -1,7 +1,7 @@
 # @package _global_
 defaults:
   - /experiment/projects/bridging/dinosaur/_base_feature_recon
-  - /dataset: robosuite-lift
+  - /dataset: robosuite-stack
   - /experiment/projects/bridging/dinosaur/_preprocessing_robosuite
   - _self_
 
@@ -17,9 +17,6 @@ dataset:
   batch_size: 8
   shuffle_val: True
 
-experiment:
-  input_feature_dim: 768
-
 models:
   conditioning:
     _target_: routed.ocl.conditioning.RandomConditioning
@@ -32,10 +29,19 @@ models:
     pretrained: ${when_testing:false,true}
     freeze: true
 
+  perceptual_grouping: {}
   object_decoder:
-    _target_: routed.ocl.decoding.PatchDecoder
+    _target_: routed.ocl.decoding.AutoregressivePatchDecoder
+    decoder_cond_dim: ${.output_dim}
+    use_input_transform: true
+    use_decoder_masks: true
     decoder:
-      _target_: ocl.neural_networks.build_mlp
+      _target_: ocl.neural_networks.build_transformer_decoder
       _partial_: true
-      features: [2048, 2048, 2048]
+      n_layers: 4
+      n_heads: 8
+      return_attention_weights: true
+    masks_path: perceptual_grouping.feature_attributions
     object_features_path: perceptual_grouping.objects
+experiment:
+  input_feature_dim: 768
