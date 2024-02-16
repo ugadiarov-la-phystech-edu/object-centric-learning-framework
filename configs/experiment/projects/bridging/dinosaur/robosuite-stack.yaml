@@ -1,3 +1,4 @@
+# @package _global_
 defaults:
   - /experiment/projects/bridging/dinosaur/_base_feature_recon
   - /dataset: robosuite-stack
