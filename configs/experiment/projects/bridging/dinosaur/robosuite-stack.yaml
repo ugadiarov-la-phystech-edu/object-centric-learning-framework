@@ -2,7 +2,7 @@
 defaults:
   - /experiment/projects/bridging/dinosaur/_base_feature_recon
   - /dataset: robosuite-stack
-  - /experiment/projects/bridging/dinosaur/_preprocessing_robosuite-stack
+  - /experiment/projects/bridging/dinosaur/_preprocessing_robosuite
   - _self_
 
 # The following parameters assume training on 8 GPUs, leading to an effective batch size of 64.
