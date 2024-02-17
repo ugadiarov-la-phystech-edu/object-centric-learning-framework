@@ -1,7 +1,7 @@
 _target_: ocl.datasets.WebdatasetDataModule
-train_shards: "${oc.env:DATASET_PREFIX}/robosuite-lift/train/shard-{000000..000059}.tar"
+train_shards: "${oc.env:DATASET_PREFIX}/robosuite-lift/train/shard-{000000..000083}.tar"
 train_size: 299878
-val_shards: "${oc.env:DATASET_PREFIX}/robosuite-lift/val/shard-{000000..000005}.tar"
+val_shards: "${oc.env:DATASET_PREFIX}/robosuite-lift/val/shard-{000000..000008}.tar"
 val_size: 30000
 test_shards:
 test_size:
