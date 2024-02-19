@@ -69,6 +69,7 @@ class TrainingConfig:
     project_name: Optional[str] = None
     group_name: Optional[str] = None
     run_name: Optional[str] = None
+    run_id: Optional[str] = None
 
 
 # --8<-- [end:TrainingConfig]
@@ -144,7 +145,9 @@ def train(config: TrainingConfig):
             project=config.project_name,
             group=config.group_name,
             name=run_name,
-            sync_tensorboard=True
+            id=config.run_id,
+            resume='never' if config.run_id is None else 'must',
+            sync_tensorboard=True,
         )
 
     datamodule = build_and_register_datamodule_from_config(config)
