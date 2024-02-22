@@ -1,0 +1,8 @@
+_target_: ocl.datasets.WebdatasetDataModule
+train_shards: "${oc.env:DATASET_PREFIX}/robosuite-lift-random/train/shard-{000000..000082}.tar"
+train_size: 299878
+val_shards: "${oc.env:DATASET_PREFIX}/robosuite-lift-random/val/shard-{000000..000008}.tar"
+val_size: 30000
+test_shards:
+test_size:
+use_autopadding: true
