@@ -66,6 +66,7 @@ class TrainingConfig:
     load_checkpoint: Optional[str] = None
     seed: Optional[int] = None
     experiment: Dict[str, Any] = dataclasses.field(default_factory=lambda: {"callbacks": {}})
+    entity: Optional[str] = None
     project_name: Optional[str] = None
     group_name: Optional[str] = None
     run_name: Optional[str] = None
@@ -142,6 +143,7 @@ def train(config: TrainingConfig):
             run_name = f'run-{config.seed}'
 
         run = wandb.init(
+            entity=config.entity,
             project=config.project_name,
             group=config.group_name,
             name=run_name,
