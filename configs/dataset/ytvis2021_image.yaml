@@ -1,0 +1,59 @@
+_target_: ocl.datasets.WebdatasetDataModule
+train_shards: "${oc.env:DATASET_PREFIX}/YouTube-VIS_2021/train/ytvis-train-{000000..000086}.tar"
+train_size: 82069
+val_shards: "${oc.env:DATASET_PREFIX}/YouTube-VIS_2021/val/ytvis-validation-{000000..000006}.tar"
+val_size: 7681
+test_shards: "${oc.env:DATASET_PREFIX}/YouTube-VIS_2021/val/ytvis-validation-{000000..000006}.tar"
+test_size: 7681
+use_autopadding: true
+
+eval_transforms:
+  00_1_rename_fields:
+    _target_: ocl.transforms.Map
+    transform:
+      _target_: ocl.preprocessing.RenameFields
+      mapping:
+        video: image
+        segmentations: mask
+    fields: [video, segmentations]
+    # While this could easily be a batch transform,
+    # but many preprocessing steps assume different naming.
+    # Thus apply rename prior to their application.
+    batch_transform: false
+  # TODO: Preprocess mask: background to channel #1
+  00_2_adapt_mask_format:
+    _target_: ocl.transforms.SimpleTransform
+    transforms:
+      mask:
+        _target_: ocl.preprocessing.IntegerToOneHotMask
+        ignore_typical_background: false
+    batch_transform: false
+  02_sample_frames:
+    _target_: ocl.transforms.SampleSlices
+    fields:
+      - image
+      - mask
+    n_slices_per_input: -1
+    dim: 0
+    seed: 457834753
+    shuffle_buffer_size: 1
+train_transforms:
+  00_1_rename_fields:
+    _target_: ocl.transforms.Map
+    transform:
+      _target_: ocl.preprocessing.RenameFields
+      mapping:
+        video: image
+    fields: [video]
+    # While this could easily be a batch transform,
+    # but many preprocessing steps assume different naming.
+    # Thus apply rename prior to their application.
+    batch_transform: false
+  02_sample_frames:
+    _target_: ocl.transforms.SampleSlices
+    fields:
+      - image
+    n_slices_per_input: -1
+    dim: 0
+    seed: 457834752
+    shuffle_buffer_size: 2000
