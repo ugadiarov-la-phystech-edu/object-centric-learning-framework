@@ -3,6 +3,7 @@ defaults:
   - /experiment/projects/bridging/dinosaur/_base_feature_recon
   - /dataset: ytvis2021_image
   - /experiment/projects/bridging/dinosaur/_preprocessing_ytvis2021
+  - /experiment/projects/bridging/dinosaur/_metrics_ytvis2021
   - _self_
 
 # The following parameters assume training on 8 GPUs, leading to an effective batch size of 64.

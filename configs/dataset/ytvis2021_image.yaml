@@ -14,7 +14,7 @@ eval_transforms:
       _target_: ocl.preprocessing.RenameFields
       mapping:
         video: image
-        segmentations: mask
+        segmentations: instance_mask
     fields: [video, segmentations]
     # While this could easily be a batch transform,
     # but many preprocessing steps assume different naming.
@@ -24,15 +24,16 @@ eval_transforms:
   00_2_adapt_mask_format:
     _target_: ocl.transforms.SimpleTransform
     transforms:
-      mask:
+      instance_mask:
         _target_: ocl.preprocessing.IntegerToOneHotMask
         ignore_typical_background: false
+        use_labels: true
     batch_transform: false
   02_sample_frames:
     _target_: ocl.transforms.SampleSlices
     fields:
       - image
-      - mask
+      - instance_mask
     n_slices_per_input: -1
     dim: 0
     seed: 457834753

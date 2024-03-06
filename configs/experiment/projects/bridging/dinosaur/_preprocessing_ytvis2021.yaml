@@ -13,6 +13,12 @@ dataset:
             - _target_: torchvision.transforms.Normalize
               mean: [0.485, 0.456, 0.406]
               std: [0.229, 0.224, 0.225]
+        instance_mask:
+          _target_: torchvision.transforms.Compose
+          transforms:
+            - _target_: ocl.preprocessing.DenseMaskToTensor
+            - _target_: torchvision.transforms.CenterCrop
+              size: 224
       batch_transform: false
   train_transforms:
     03b_preprocessing:

@@ -17,9 +17,11 @@ class ARIMetric(torchmetrics.Metric):
         foreground: bool = True,
         convert_target_one_hot: bool = False,
         ignore_overlaps: bool = False,
+        background_dim: int = 0
     ):
         super().__init__()
         self.foreground = foreground
+        self.background_dim = background_dim
         self.convert_target_one_hot = convert_target_one_hot
         self.ignore_overlaps = ignore_overlaps
         self.add_state(
@@ -83,7 +85,7 @@ class ARIMetric(torchmetrics.Metric):
         assert torch.all(target.sum(dim=-1) < 2), "Issues with target format, mask non-exclusive"
 
         if self.foreground:
-            ari = fg_adjusted_rand_index(prediction, target)
+            ari = fg_adjusted_rand_index(prediction, target, bg_dim=self.background_dim)
         else:
             ari = adjusted_rand_index(prediction, target)
 

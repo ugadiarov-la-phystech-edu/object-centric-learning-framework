@@ -184,6 +184,7 @@ class IntegerToOneHotMask:
         ignore_typical_background: bool = True,
         output_axis: int = -4,
         max_instances: Optional[int] = None,
+        use_labels=False,
     ):
         """Initialize IntegerToOneHotMask.
 
@@ -197,8 +198,16 @@ class IntegerToOneHotMask:
         self.ignore_typical_background = ignore_typical_background
         self.output_axis = output_axis
         self.max_instances = max_instances
+        self.use_labels = use_labels
 
     def __call__(self, array: numpy.ndarray) -> numpy.ndarray:
+        if isinstance(array, numpy.ndarray):
+            pkg = numpy
+        elif isinstance(array, torch.Tensor):
+            pkg = torch
+        else:
+            assert False, 'Only torch.Tensor and numpy.ndarray are supported!'
+
         max_value = array.max()
         if self.ignore_typical_background:
             if max_value == 255:
@@ -206,17 +215,25 @@ class IntegerToOneHotMask:
                 array[array == 255] = 0
                 max_value = array.max()
             max_instances = self.max_instances if self.max_instances else max_value
-            to_one_hot = numpy.concatenate(
+            if self.use_labels:
+                diagonal = pkg.arange(1, max_instances + 1, dtype=pkg.uint8)
+            else:
+                diagonal = pkg.ones((max_instances,), dtype=pkg.uint8)
+            to_one_hot = pkg.concatenate(
                 [
-                    numpy.zeros((1, max_instances), dtype=numpy.uint8),
-                    numpy.eye(max_instances, dtype=numpy.uint8),
+                    pkg.zeros((1, max_instances), dtype=pkg.uint8),
+                    pkg.diag(diagonal),
                 ],
                 axis=0,
             )
         else:
             max_instances = self.max_instances if self.max_instances else max_value
-            to_one_hot = numpy.eye(max_instances + 1, dtype=numpy.uint8)
-        return numpy.moveaxis(to_one_hot[array], -1, self.output_axis)
+            if self.use_labels:
+                diagonal = pkg.arange(1, max_instances + 2, dtype=pkg.uint8)
+            else:
+                diagonal = pkg.ones((max_instances + 1,), dtype=pkg.uint8)
+            to_one_hot = pkg.diag(diagonal)
+        return pkg.moveaxis(to_one_hot[array], -1, self.output_axis)
 
 
 class VOCInstanceMasksToDenseMasks:
