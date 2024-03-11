@@ -6,6 +6,7 @@ import hydra
 import hydra_zen
 import pytorch_lightning as pl
 from omegaconf import SI
+import torch
 import wandb
 
 import ocl.cli._config  # noqa: F401
@@ -135,6 +136,8 @@ def train(config: TrainingConfig):
     # and assigns each dataloader worker a different random seed.
     # IMPORTANTLY, we need to take care not to set a custom `worker_init_fn` function on the
     # dataloaders (or take care of worker seeding ourselves).
+    torch.set_float32_matmul_precision('high')
+
     pl.seed_everything(config.seed, workers=True)
     run = None
     if config.project_name is not None:
