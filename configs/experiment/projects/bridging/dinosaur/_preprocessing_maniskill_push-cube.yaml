@@ -1,0 +1,30 @@
+# @package _global_
+dataset:
+  eval_transforms:
+    03a_preprocessing:
+      _target_: ocl.transforms.SimpleTransform
+      transforms:
+        image:
+          _target_: torchvision.transforms.Compose
+          transforms:
+            - _target_: torchvision.transforms.ToTensor
+            - _target_: torchvision.transforms.Normalize
+              mean: [0.485, 0.456, 0.406]
+              std: [0.229, 0.224, 0.225]
+        instance_mask:
+          _target_: torchvision.transforms.Compose
+          transforms:
+            - _target_: ocl.preprocessing.DenseMaskToTensor
+      batch_transform: false
+  train_transforms:
+    03b_preprocessing:
+      _target_: ocl.transforms.SimpleTransform
+      transforms:
+        image:
+          _target_: torchvision.transforms.Compose
+          transforms:
+            - _target_: torchvision.transforms.ToTensor
+            - _target_: torchvision.transforms.Normalize
+              mean: [0.485, 0.456, 0.406]
+              std: [0.229, 0.224, 0.225]
+      batch_transform: false

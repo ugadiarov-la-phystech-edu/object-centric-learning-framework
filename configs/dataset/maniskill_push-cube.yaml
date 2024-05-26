@@ -1,0 +1,29 @@
+_target_: ocl.datasets.WebdatasetDataModule
+train_shards: "${oc.env:DATASET_PREFIX}/ManiSkill/PushCube-v1/train/shard-{000000..000315}.tar"
+train_size: 300000
+val_shards: "${oc.env:DATASET_PREFIX}/ManiSkill/PushCube-v1/val/shard-{000000..000031}.tar"
+val_size: 30000
+test_shards: "${oc.env:DATASET_PREFIX}/ManiSkill/PushCube-v1/val/shard-{000000..000031}.tar"
+test_size: 30000
+use_autopadding: true
+
+eval_transforms:
+  00_1_rename_fields:
+    _target_: ocl.transforms.Map
+    transform:
+      _target_: ocl.preprocessing.RenameFields
+      mapping:
+        segmentations: instance_mask
+    fields: [segmentations]
+    # While this could easily be a batch transform,
+    # but many preprocessing steps assume different naming.
+    # Thus apply rename prior to their application.
+    batch_transform: false
+  00_2_adapt_mask_format:
+    _target_: ocl.transforms.SimpleTransform
+    transforms:
+      instance_mask:
+        _target_: ocl.preprocessing.IntegerToOneHotMask
+        ignore_typical_background: false
+        use_labels: true
+    batch_transform: false
